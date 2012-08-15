@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<title>Chatty</title>
+	<meta charset="UTF-8" />
+</head>
+
+<body>
+
+	<pre id="log"></pre>
+
+	<form onsubmit="send(this.msg.value); this.msg.value = ''; return false;">
+		<p>Send: <input name="msg" autofocus /></p>
+	</form>
+
+	<script>
+	var _log = document.getElementById('log');
+	function log(msg, c) {
+		_log.appendChild(c = document.createElement('p'));
+		c.textContent = msg;
+
+		scrollTo(0, document.documentElement.clientHeight);
+	}
+
+	function send(msg) {
+		if ( '' !== msg ) {
+			log('sending message: "' + msg + '"');
+			socket.send(msg);
+		}
+	}
+
+	var url = "ws://" + location.host + ":8083",
+		protocol = 'abalone';
+
+	log('initializing socket...');
+	socket = new WebSocket(url, protocol);
+
+	socket.addEventListener("open", function(e, name) {
+		log('on open');
+
+		if (name = location.hash.substr(1)) {
+			send('name ' + name);
+		}
+
+		//socket.close();
+	});
+
+	// Display messages received from the server
+	socket.addEventListener("message", function(e) {
+		log('on message: "' + e.data + '"');
+		console.log(e);
+	});
+
+	socket.addEventListener("error", function(e) {
+		log('on error');
+		console.log(e);
+	});
+
+	socket.addEventListener("close", function(e) {
+		log('on close');
+		console.log(e);
+	});
+	</script>
+
+</body>
+
+</html>
